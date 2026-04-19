@@ -12,12 +12,12 @@ button:hover { background:#1d4ed8; }
 .grid { display:grid; grid-template-columns: repeat(5,1fr); gap:12px; padding:15px; }
 .room { padding:15px; border-radius:12px; cursor:pointer; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.3); }
 .available { background:#16a34a; }
-.occupied { background:#2563eb; } /* BLUE */
+.occupied { background:#dc2626; } /* RED */
 .due { background:#f59e0b; } /* ORANGE */
 .maintenance { background:#6b7280; }
 .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; }
 .modal-content { background:#1e293b; padding:20px; border-radius:12px; width:320px; }
-input { width:100%; padding:6px; margin:5px 0; border-radius:6px; border:none; }
+input, select { width:100%; padding:6px; margin:5px 0; border-radius:6px; border:none; }
 .bar { height:10px; background:#374151; border-radius:10px; overflow:hidden; }
 .bar-fill { height:100%; background:#22c55e; }
 </style>
@@ -46,17 +46,7 @@ input { width:100%; padding:6px; margin:5px 0; border-radius:6px; border:none; }
 <script>
 let currentDay=parseInt(localStorage.getItem('day'))||1;
 let rooms=JSON.parse(localStorage.getItem('rooms'))||{
-1:{type:"Deluxe",price:100,status:"available"},
-2:{type:"Deluxe",price:100,status:"available"},
-3:{type:"Executive",price:200,status:"available"},
-4:{type:"Deluxe",price:100,status:"available"},
-5:{type:"Standard",price:50,status:"available"},
-6:{type:"Standard",price:50,status:"available"},
-7:{type:"Standard",price:50,status:"available"},
-8:{type:"Standard",price:50,status:"available"},
-9:{type:"Executive",price:200,status:"available"},
-10:{type:"Deluxe",price:100,status:"available"},
-11:{type:"Deluxe",price:100,status:"available"}
+1:{type:"Deluxe",price:100,status:"available"},2:{type:"Deluxe",price:100,status:"available"},3:{type:"Executive",price:200,status:"available"},4:{type:"Deluxe",price:100,status:"available"},5:{type:"Standard",price:50,status:"available"},6:{type:"Standard",price:50,status:"available"},7:{type:"Standard",price:50,status:"available"},8:{type:"Standard",price:50,status:"available"},9:{type:"Executive",price:200,status:"available"},10:{type:"Deluxe",price:100,status:"available"},11:{type:"Deluxe",price:100,status:"available"}
 };
 
 function save(){localStorage.setItem('rooms',JSON.stringify(rooms));localStorage.setItem('day',currentDay);}
@@ -89,12 +79,26 @@ save();
 function openRoom(id){
 let r=rooms[id];
 let status=getStatus(r);
+let total=(r.total||0)+(r.charges||0);
+let paid=r.paid||0;
+let remaining=total-paid;
+
 let html=`<h3>Room ${id}</h3><p>${r.type}</p><p>${r.user||""}</p><p>Status:${status}</p>`;
+
 if(status==='available') html+=`<button onclick='checkin(${id})'>Check In</button>`;
+
 if(status==='occupied'||status==='due') html+=`
 <button onclick='checkout(${id})'>Check Out</button>
-<button onclick='addGuest(${id})'>Add Guest (+$10)</button>`;
-html+=`<br><button onclick='closeModal()'>Close</button>`;
+<button onclick='addCharge(${id})'>Add Charge</button>
+<button onclick='paySome(${id})'>Pay Some</button>
+<button onclick='addGuest(${id})'>Add Guest (+$10)</button>
+<p>Total:$${total}</p>
+<p>Paid:$${paid}</p>
+<p>Remaining:$${remaining}</p>`;
+
+html+=`<br><button onclick='setMaintenance(${id})'>Maintenance</button>
+<button onclick='closeModal()'>Close</button>`;
+
 showModal(html);
 }
 
@@ -107,17 +111,37 @@ let u=document.getElementById('user').value;
 let n=parseInt(document.getElementById('nights').value);
 if(!u||!n)return;
 let total=rooms[id].price*n;
-let dep=total*0.25;
-showModal(`Total:$${total}<br>Deposit:$${dep}<br><button onclick='finishCheckin(${id},"${u}",${n})'>Confirm</button>`);
+showModal(`Total:$${total}<br><button onclick='finishCheckin(${id},"${u}",${n},${total})'>Confirm</button>`);
 }
 
-function finishCheckin(id,u,n){
-rooms[id]={...rooms[id],status:'occupied',user:u,checkoutDay:currentDay+n};
+function finishCheckin(id,u,n,total){
+rooms[id]={...rooms[id],status:'occupied',user:u,checkoutDay:currentDay+n,total:total,charges:0,paid:0,guests:[]};
 closeModal();render();
 }
 
 function checkout(id){
+let r=rooms[id];
+let remaining=(r.total||0)+(r.charges||0)-(r.paid||0);
+if(remaining>0){showModal(`Remaining:$${remaining} must be paid`);return;}
 rooms[id]={type:rooms[id].type,price:rooms[id].price,status:'available'};
+closeModal();render();
+}
+
+function addCharge(id){
+showModal(`Item<input id='i'><br>Amount<input id='a' type='number'><button onclick='cCharge(${id})'>Add</button>`);
+}
+function cCharge(id){
+let a=parseFloat(document.getElementById('a').value);
+rooms[id].charges=(rooms[id].charges||0)+a;
+closeModal();render();
+}
+
+function paySome(id){
+showModal(`Amount<input id='p' type='number'><button onclick='cPay(${id})'>Pay</button>`);
+}
+function cPay(id){
+let p=parseFloat(document.getElementById('p').value);
+rooms[id].paid=(rooms[id].paid||0)+p;
 closeModal();render();
 }
 
@@ -126,8 +150,8 @@ showModal(`Guest username<input id='g'><button onclick='cGuest(${id})'>Add</butt
 }
 function cGuest(id){
 let g=document.getElementById('g').value;
-rooms[id].guests=(rooms[id].guests||[]);
 rooms[id].guests.push(g);
+rooms[id].charges+=10;
 closeModal();render();
 }
 
@@ -142,13 +166,15 @@ let n=parseInt(document.getElementById('n').value);
 let t=document.getElementById('t').value;
 for(let i in rooms){
 if(rooms[i].type===t && getStatus(rooms[i])==='available'){
-rooms[i]={...rooms[i],status:'occupied',user:u,checkoutDay:currentDay+n,guests:[]};
+rooms[i]={...rooms[i],status:'occupied',user:u,checkoutDay:currentDay+n,total:rooms[i].price*n,charges:0,paid:0,guests:[]};
 for(let x=0;x<g;x++) rooms[i].guests.push('guest'+x);
 break;
 }
 }
 closeModal();render();
 }
+
+function setMaintenance(id){rooms[id].status='maintenance';closeModal();render();}
 
 function clearAll(){ if(confirm('Clear all data?')){ localStorage.clear(); location.reload(); } }
 
