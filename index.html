@@ -43,7 +43,17 @@ input { width:100%; padding:6px; margin:5px 0; border-radius:6px; border:none; }
 let historyStack=[];
 let currentDay=parseInt(localStorage.getItem('day'))||1;
 let rooms=JSON.parse(localStorage.getItem('rooms'))||{
-1:{type:"Deluxe",price:100,status:"available"},2:{type:"Deluxe",price:100,status:"available"},3:{type:"Executive",price:200,status:"available"},4:{type:"Standard",price:50,status:"available"},5:{type:"Standard",price:50,status:"available"},6:{type:"Standard",price:50,status:"available"},7:{type:"Standard",price:50,status:"available"},8:{type:"Executive",price:200,status:"available"},9:{type:"Deluxe",price:100,status:"available"},10:{type:"Deluxe",price:100,status:"available"}
+1:{type:"Deluxe",price:100,status:"available"},
+2:{type:"Deluxe",price:100,status:"available"},
+3:{type:"Executive",price:200,status:"available"},
+4:{type:"Deluxe",price:100,status:"available"},
+5:{type:"Standard",price:50,status:"available"},
+6:{type:"Standard",price:50,status:"available"},
+7:{type:"Standard",price:50,status:"available"},
+8:{type:"Standard",price:50,status:"available"},
+9:{type:"Executive",price:200,status:"available"},
+10:{type:"Deluxe",price:100,status:"available"},
+11:{type:"Deluxe",price:100,status:"available"}
 };
 
 function save(){localStorage.setItem('rooms',JSON.stringify(rooms));localStorage.setItem('day',currentDay);}
@@ -59,7 +69,7 @@ let r=rooms[i];
 if(r.status==='occupied') occ++;
 let name=r.user?`<br>${r.user}`:"";
 let div=`<div class='room ${r.status}' onclick='openRoom(${i})'>Room ${i}<br>${r.type}${name}</div>`;
-if(i<=7)f1+=div;else f2+=div;
+if(i<=8)f1+=div;else f2+=div;
 }
 document.getElementById('floor1').innerHTML=f1;
 document.getElementById('floor2').innerHTML=f2;
