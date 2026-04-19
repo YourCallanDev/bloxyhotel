@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotel System</title>
+<style>
+body { font-family: Arial; margin:0; background:#111; color:#fff; }
+header { padding:10px; background:#1e1e1e; display:flex; justify-content:space-between; align-items:center; }
+button { padding:6px 10px; margin:3px; cursor:pointer; }
+.grid { display:grid; grid-template-columns: repeat(5,1fr); gap:10px; padding:10px; }
+.room { padding:10px; border-radius:8px; cursor:pointer; }
+.available { background:green; }
+.occupied { background:red; }
+.cleaning { background:orange; }
+.modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; }
+.modal-content { background:#222; padding:20px; border-radius:10px; width:300px; }
+</style>
+</head>
+<body>
+<header>
+<div>
+<button onclick="prevDay()">◀</button>
+<span id="day">Day 1</span>
+<button onclick="nextDay()">▶</button>
+</div>
+<div>
+<button onclick="openCheckin()">➕ Check In</button>
+<button onclick="searchGuest()">🔍 Search</button>
+<button onclick="summary()">📊 Summary</button>
+</div>
+</header>
+
+<h2 style="padding-left:10px;">Floor 1</h2>
+<div class="grid" id="floor1"></div>
+<h2 style="padding-left:10px;">Floor 2</h2>
+<div class="grid" id="floor2"></div>
+
+<div class="modal" id="modal">
+<div class="modal-content" id="modalContent"></div>
+</div>
+
+<script>
+let currentDay = 1;
+let rooms = {
+1:{type:"Deluxe",price:100,status:"available"},
+2:{type:"Deluxe",price:100,status:"available"},
+3:{type:"Executive",price:200,status:"available"},
+4:{type:"Standard",price:50,status:"available"},
+5:{type:"Standard",price:50,status:"available"},
+6:{type:"Standard",price:50,status:"available"},
+7:{type:"Standard",price:50,status:"available"},
+8:{type:"Executive",price:200,status:"available"},
+9:{type:"Deluxe",price:100,status:"available"},
+10:{type:"Deluxe",price:100,status:"available"}
+};
+
+function render(){
+let f1="", f2="";
+for(let i in rooms){
+let r=rooms[i];
+let div=`<div class='room ${r.status}' onclick='openRoom(${i})'>Room ${i}<br>${r.type}<br>${r.status}</div>`;
+if(i<=7) f1+=div; else f2+=div;
+}
+document.getElementById("floor1").innerHTML=f1;
+document.getElementById("floor2").innerHTML=f2;
+document.getElementById("day").innerText="Day "+currentDay;
+}
+
+function openRoom(id){
+let r=rooms[id];
+let html=`<h3>Room ${id}</h3><p>${r.type}</p><p>Status: ${r.status}</p>`;
+if(r.status=="available") html+=`<button onclick='checkin(${id})'>Check In</button>`;
+if(r.status=="occupied") html+=`<button onclick='checkout(${id})'>Check Out</button><button onclick='addCharge(${id})'>Add Charge</button><button onclick='extend(${id})'>Extend</button>`;
+if(r.status=="cleaning") html+=`<button onclick='markClean(${id})'>Mark Clean</button>`;
+showModal(html);
+}
+
+function checkin(id){
+showModal(`Username:<input id='user'><br>Nights:<input id='nights' type='number'><br><button onclick='confirmCheckin(${id})'>Confirm</button>`);
+}
+
+function confirmCheckin(id){
+let user=document.getElementById('user').value;
+let nights=parseInt(document.getElementById('nights').value);
+let total=rooms[id].price*nights;
+let deposit=total*0.25;
+showModal(`Total $${total}<br>Deposit $${deposit}<br><button onclick='finishCheckin(${id},"${user}",${total},${deposit})'>Deposit Paid</button>`);
+}
+
+function finishCheckin(id,user,total,deposit){
+rooms[id]={...rooms[id],status:"occupied",user,total,deposit,charges:0};
+closeModal(); render();
+}
+
+function checkout(id){
+let r=rooms[id];
+let remaining=r.total+r.charges-r.deposit;
+if(remaining>0){ alert("Balance unpaid"); return; }
+rooms[id].status="cleaning";
+closeModal(); render();
+}
+
+function addCharge(id){
+showModal(`Item:<input id='item'><br>Amount:<input id='amt' type='number'><br><button onclick='confirmCharge(${id})'>Add</button>`);
+}
+
+function confirmCharge(id){
+let amt=parseFloat(document.getElementById('amt').value);
+rooms[id].charges+=amt;
+closeModal(); render();
+}
+
+function extend(id){
+showModal(`Extra nights:<input id='ext' type='number'><br><button onclick='confirmExtend(${id})'>Add</button>`);
+}
+
+function confirmExtend(id){
+let ext=parseInt(document.getElementById('ext').value);
+rooms[id].total+=rooms[id].price*ext;
+closeModal(); render();
+}
+
+function markClean(id){ rooms[id].status="available"; closeModal(); render(); }
+
+function showModal(html){ document.getElementById("modal").style.display="flex"; document.getElementById("modalContent").innerHTML=html; }
+function closeModal(){ document.getElementById("modal").style.display="none"; }
+
+function nextDay(){ currentDay++; render(); }
+function prevDay(){ if(currentDay>1) currentDay--; render(); }
+
+function openCheckin(){ showModal("Select a room first"); }
+function searchGuest(){ alert("Not built yet"); }
+function summary(){ alert("Not built yet"); }
+
+render();
+</script>
+</body>
+</html>
