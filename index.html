@@ -4,19 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hotel System</title>
+
 <style>
-body { font-family: Arial; margin:0; background:#111; color:#fff; }
-header { padding:10px; background:#1e1e1e; display:flex; justify-content:space-between; align-items:center; }
-button { padding:6px 10px; margin:3px; cursor:pointer; }
-.grid { display:grid; grid-template-columns: repeat(5,1fr); gap:10px; padding:10px; }
-.room { padding:10px; border-radius:8px; cursor:pointer; }
-.available { background:green; }
-.occupied { background:red; }
-.cleaning { background:orange; }
-.modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; }
-.modal-content { background:#222; padding:20px; border-radius:10px; width:300px; }
+body { margin:0; font-family: 'Segoe UI', sans-serif; background:#0f172a; color:#fff; }
+header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#111827; box-shadow:0 2px 10px rgba(0,0,0,0.4); }
+button { background:#2563eb; border:none; color:white; padding:8px 12px; border-radius:8px; cursor:pointer; transition:0.2s; }
+button:hover { background:#1d4ed8; }
+.grid { display:grid; grid-template-columns: repeat(5,1fr); gap:15px; padding:15px; }
+.room { padding:15px; border-radius:12px; cursor:pointer; text-align:center; font-weight:500; box-shadow:0 4px 15px rgba(0,0,0,0.3); }
+.available { background:#16a34a; }
+.occupied { background:#dc2626; }
+.cleaning { background:#f59e0b; }
+.modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; }
+.modal-content { background:#1e293b; padding:25px; border-radius:12px; width:320px; box-shadow:0 10px 30px rgba(0,0,0,0.5); }
+input { width:100%; padding:8px; margin:5px 0; border-radius:6px; border:none; }
+.summary { padding:15px; }
+.highlight { outline:3px solid #22c55e; }
 </style>
 </head>
+
 <body>
 <header>
 <div>
@@ -31,18 +37,16 @@ button { padding:6px 10px; margin:3px; cursor:pointer; }
 </div>
 </header>
 
-<h2 style="padding-left:10px;">Floor 1</h2>
+<h2 style="padding-left:15px;">Floor 1</h2>
 <div class="grid" id="floor1"></div>
-<h2 style="padding-left:10px;">Floor 2</h2>
+<h2 style="padding-left:15px;">Floor 2</h2>
 <div class="grid" id="floor2"></div>
 
-<div class="modal" id="modal">
-<div class="modal-content" id="modalContent"></div>
-</div>
+<div class="modal" id="modal"><div class="modal-content" id="modalContent"></div></div>
 
 <script>
-let currentDay = 1;
-let rooms = {
+let currentDay = parseInt(localStorage.getItem('day')) || 1;
+let rooms = JSON.parse(localStorage.getItem('rooms')) || {
 1:{type:"Deluxe",price:100,status:"available"},
 2:{type:"Deluxe",price:100,status:"available"},
 3:{type:"Executive",price:200,status:"available"},
@@ -55,48 +59,57 @@ let rooms = {
 10:{type:"Deluxe",price:100,status:"available"}
 };
 
+function save(){
+localStorage.setItem('rooms', JSON.stringify(rooms));
+localStorage.setItem('day', currentDay);
+}
+
 function render(){
 let f1="", f2="";
 for(let i in rooms){
 let r=rooms[i];
-let div=`<div class='room ${r.status}' onclick='openRoom(${i})'>Room ${i}<br>${r.type}<br>${r.status}</div>`;
+let highlight = r.checkoutDay === currentDay ? 'highlight' : '';
+let div=`<div class='room ${r.status} ${highlight}' onclick='openRoom(${i})'>Room ${i}<br>${r.type}<br>${r.status}</div>`;
 if(i<=7) f1+=div; else f2+=div;
 }
 document.getElementById("floor1").innerHTML=f1;
 document.getElementById("floor2").innerHTML=f2;
 document.getElementById("day").innerText="Day "+currentDay;
+save();
 }
 
 function openRoom(id){
 let r=rooms[id];
 let html=`<h3>Room ${id}</h3><p>${r.type}</p><p>Status: ${r.status}</p>`;
 if(r.status=="available") html+=`<button onclick='checkin(${id})'>Check In</button>`;
-if(r.status=="occupied") html+=`<button onclick='checkout(${id})'>Check Out</button><button onclick='addCharge(${id})'>Add Charge</button><button onclick='extend(${id})'>Extend</button>`;
+if(r.status=="occupied") html+=`<button onclick='checkout(${id})'>Check Out</button><button onclick='addCharge(${id})'>Add Charge</button><button onclick='extend(${id})'>Extend</button><p>Total: $${r.total+r.charges}</p><p>Remaining: $${r.total+r.charges-r.deposit}</p>`;
 if(r.status=="cleaning") html+=`<button onclick='markClean(${id})'>Mark Clean</button>`;
+html+=`<br><button onclick='closeModal()'>Close</button>`;
 showModal(html);
 }
 
 function checkin(id){
-showModal(`Username:<input id='user'><br>Nights:<input id='nights' type='number'><br><button onclick='confirmCheckin(${id})'>Confirm</button>`);
+showModal(`Username:<input id='user'><br>Nights:<input id='nights' type='number'><br><button onclick='confirmCheckin(${id})'>Next</button>`);
 }
 
 function confirmCheckin(id){
 let user=document.getElementById('user').value;
 let nights=parseInt(document.getElementById('nights').value);
+if(!user||!nights) return;
 let total=rooms[id].price*nights;
 let deposit=total*0.25;
-showModal(`Total $${total}<br>Deposit $${deposit}<br><button onclick='finishCheckin(${id},"${user}",${total},${deposit})'>Deposit Paid</button>`);
+showModal(`Total: $${total}<br>Deposit Required: $${deposit}<br><button onclick='finishCheckin(${id},"${user}",${nights},${total},${deposit})'>Deposit Paid</button>`);
 }
 
-function finishCheckin(id,user,total,deposit){
-rooms[id]={...rooms[id],status:"occupied",user,total,deposit,charges:0};
+function finishCheckin(id,user,nights,total,deposit){
+rooms[id]={...rooms[id],status:"occupied",user,total,deposit,charges:0,checkoutDay: currentDay+nights};
 closeModal(); render();
 }
 
 function checkout(id){
 let r=rooms[id];
 let remaining=r.total+r.charges-r.deposit;
-if(remaining>0){ alert("Balance unpaid"); return; }
+if(remaining>0){ showModal(`<p>Balance unpaid: $${remaining}</p><button onclick='closeModal()'>Close</button>`); return; }
 rooms[id].status="cleaning";
 closeModal(); render();
 }
@@ -107,6 +120,7 @@ showModal(`Item:<input id='item'><br>Amount:<input id='amt' type='number'><br><b
 
 function confirmCharge(id){
 let amt=parseFloat(document.getElementById('amt').value);
+if(!amt) return;
 rooms[id].charges+=amt;
 closeModal(); render();
 }
@@ -117,11 +131,13 @@ showModal(`Extra nights:<input id='ext' type='number'><br><button onclick='confi
 
 function confirmExtend(id){
 let ext=parseInt(document.getElementById('ext').value);
+if(!ext) return;
 rooms[id].total+=rooms[id].price*ext;
+rooms[id].checkoutDay+=ext;
 closeModal(); render();
 }
 
-function markClean(id){ rooms[id].status="available"; closeModal(); render(); }
+function markClean(id){ rooms[id].status="available"; delete rooms[id].user; closeModal(); render(); }
 
 function showModal(html){ document.getElementById("modal").style.display="flex"; document.getElementById("modalContent").innerHTML=html; }
 function closeModal(){ document.getElementById("modal").style.display="none"; }
@@ -129,9 +145,33 @@ function closeModal(){ document.getElementById("modal").style.display="none"; }
 function nextDay(){ currentDay++; render(); }
 function prevDay(){ if(currentDay>1) currentDay--; render(); }
 
-function openCheckin(){ showModal("Select a room first"); }
-function searchGuest(){ alert("Not built yet"); }
-function summary(){ alert("Not built yet"); }
+function openCheckin(){ showModal("Select a room from the dashboard"); }
+
+function searchGuest(){
+let html="<h3>Search</h3><input id='search'><button onclick='doSearch()'>Search</button><div id='results'></div><br><button onclick='closeModal()'>Close</button>";
+showModal(html);
+}
+
+function doSearch(){
+let q=document.getElementById('search').value;
+let res="";
+for(let i in rooms){
+let r=rooms[i];
+if(r.user && r.user.includes(q)) res+=`Room ${i} - ${r.user}<br>`;
+}
+document.getElementById('results').innerHTML=res||"No results";
+}
+
+function summary(){
+let occupied=0, revenue=0;
+for(let i in rooms){
+let r=rooms[i];
+if(r.status==='occupied') occupied++;
+if(r.total) revenue+=r.total + (r.charges||0);
+}
+let html=`<h3>Summary</h3><p>Occupied: ${occupied}/10</p><p>Total Revenue: $${revenue}</p><button onclick='closeModal()'>Close</button>`;
+showModal(html);
+}
 
 render();
 </script>
