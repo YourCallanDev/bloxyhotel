@@ -3,108 +3,328 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Luxury Hotel PMS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>Hotel PMS</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Inter,sans-serif;background:#0b1120;color:white;overflow:hidden}
-.app{display:grid;grid-template-columns:280px 1fr 360px;height:100vh}
-.sidebar{background:rgba(15,23,42,.95);padding:24px;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:18px}
-.logo{font-size:26px;font-weight:700}
-.panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:18px;border-radius:20px;backdrop-filter:blur(10px);animation:fade .5s}
-button{background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;padding:12px;border-radius:14px;color:white;font-weight:600;cursor:pointer;transition:.25s;width:100%}
-button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.35)}
-.main{overflow:auto;padding:24px}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-.daynav{display:flex;align-items:center;gap:10px}
-.smallbtn{width:auto;padding:10px 14px}
-.floor-title{margin:22px 0 12px;font-size:22px;font-weight:700}
-.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px}
-.room-card{padding:18px;border-radius:22px;cursor:pointer;transition:.3s;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
-.room-card:hover{transform:translateY(-6px) scale(1.02)}
-.room-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom right,rgba(255,255,255,.08),transparent);pointer-events:none}
-.available{background:linear-gradient(145deg,#14532d,#166534)}
-.occupied{background:linear-gradient(145deg,#991b1b,#dc2626)}
-.cleaning{background:linear-gradient(145deg,#1e3a8a,#2563eb)}
-.due{background:linear-gradient(145deg,#9a3412,#f97316)}
-.maintenance{background:linear-gradient(145deg,#374151,#6b7280)}
-.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.12);font-size:12px;margin-top:10px}
-.room-number{font-size:24px;font-weight:700}
-.room-user{margin-top:10px;font-size:15px;opacity:.95}
-.right-panel{background:rgba(15,23,42,.95);border-left:1px solid rgba(255,255,255,.08);padding:24px;overflow:auto}
-input,select{width:100%;padding:12px;border:none;border-radius:12px;background:#111827;color:white;margin-top:8px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;justify-content:center;align-items:center;backdrop-filter:blur(6px);z-index:50}
-.modal-content{background:#111827;padding:26px;border-radius:24px;width:380px;animation:pop .25s}
-.notification{padding:10px;border-radius:12px;background:rgba(255,255,255,.05);margin-top:10px;font-size:14px}
-.stat{font-size:28px;font-weight:700}
-@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
-@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Inter,sans-serif;
+background:#0b1120;
+color:white;
+height:100vh;
+overflow:hidden;
+}
+
+.app{
+display:flex;
+flex-direction:column;
+height:100vh;
+}
+
+.topbar{
+height:80px;
+background:rgba(15,23,42,.95);
+border-bottom:1px solid rgba(255,255,255,.08);
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 24px;
+backdrop-filter:blur(10px);
+}
+
+.logo{
+font-size:26px;
+font-weight:700;
+}
+
+.stats{
+display:flex;
+gap:16px;
+}
+
+.stat{
+background:rgba(255,255,255,.05);
+padding:10px 16px;
+border-radius:16px;
+min-width:120px;
+animation:fade .4s;
+}
+
+.stat-title{
+font-size:12px;
+opacity:.7;
+}
+
+.stat-value{
+font-size:24px;
+font-weight:700;
+margin-top:4px;
+}
+
+.main{
+display:grid;
+grid-template-columns:1fr 1fr 1fr 340px;
+gap:20px;
+padding:20px;
+overflow:auto;
+height:calc(100vh - 80px);
+}
+
+.column{
+background:rgba(255,255,255,.04);
+border:1px solid rgba(255,255,255,.08);
+border-radius:24px;
+padding:18px;
+overflow:auto;
+}
+
+.column-title{
+font-size:22px;
+font-weight:700;
+margin-bottom:16px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.room-card{
+padding:18px;
+border-radius:22px;
+margin-bottom:16px;
+cursor:pointer;
+transition:.25s;
+position:relative;
+overflow:hidden;
+border:1px solid rgba(255,255,255,.08);
+animation:fade .35s;
+}
+
+.room-card:hover{
+transform:translateY(-4px) scale(1.02);
+}
+
+.room-card::after{
+content:'';
+position:absolute;
+inset:0;
+background:linear-gradient(to bottom right,rgba(255,255,255,.08),transparent);
+pointer-events:none;
+}
+
+.available{
+background:linear-gradient(145deg,#14532d,#166534);
+}
+
+.booked{
+background:linear-gradient(145deg,#7c2d12,#dc2626);
+}
+
+.important{
+background:linear-gradient(145deg,#1d4ed8,#2563eb);
+}
+
+.room-number{
+font-size:22px;
+font-weight:700;
+}
+
+.room-user{
+margin-top:10px;
+font-size:14px;
+opacity:.9;
+}
+
+.badge{
+display:inline-block;
+padding:5px 10px;
+border-radius:999px;
+background:rgba(255,255,255,.12);
+margin-top:12px;
+font-size:12px;
+}
+
+.sidepanel{
+background:rgba(255,255,255,.04);
+border:1px solid rgba(255,255,255,.08);
+border-radius:24px;
+padding:18px;
+overflow:auto;
+}
+
+button{
+border:none;
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
+color:white;
+padding:12px;
+border-radius:14px;
+font-weight:600;
+cursor:pointer;
+transition:.25s;
+width:100%;
+margin-top:10px;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 20px rgba(37,99,235,.3);
+}
+
+input,select{
+width:100%;
+padding:12px;
+border:none;
+border-radius:14px;
+background:#111827;
+color:white;
+margin-top:10px;
+}
+
+.notification{
+padding:12px;
+background:rgba(255,255,255,.05);
+border-radius:14px;
+margin-top:10px;
+font-size:14px;
+}
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+display:none;
+justify-content:center;
+align-items:center;
+backdrop-filter:blur(6px);
+z-index:100;
+}
+
+.modal-content{
+background:#111827;
+padding:26px;
+border-radius:24px;
+width:400px;
+animation:pop .25s;
+}
+
+@keyframes pop{
+from{transform:scale(.9);opacity:0}
+to{transform:scale(1);opacity:1}
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(10px)}
+to{opacity:1;transform:none}
+}
 </style>
 </head>
 <body>
-<div class='app'>
-<div class='sidebar'>
-<div class='logo'>Hotel PMS</div>
-<div class='panel'>
-<div style='font-size:14px;opacity:.7'>Current Day</div>
-<div class='stat' id='day'></div>
-<div class='daynav' style='margin-top:12px'>
-<button class='smallbtn' onclick='prevDay()'>◀</button>
-<button class='smallbtn' onclick='nextDay()'>▶</button>
+
+<div class="app">
+
+<div class="topbar">
+<div class="logo">Hotel PMS</div>
+
+<div class="stats">
+<div class="stat">
+<div class="stat-title">DAY</div>
+<div class="stat-value" id="dayDisplay"></div>
+</div>
+
+<div class="stat">
+<div class="stat-title">REVENUE</div>
+<div class="stat-value" id="revenueStat">$0</div>
+</div>
+
+<div class="stat">
+<div class="stat-title">OCCUPIED</div>
+<div class="stat-value" id="occupiedStat">0</div>
+</div>
+
+<div class="stat">
+<div class="stat-title">IMPORTANT</div>
+<div class="stat-value" id="importantStat">0</div>
+</div>
 </div>
 </div>
 
-<div class='panel'>
-<button onclick='quickCheckin()'>⚡ Quick Check-In</button>
-<button style='margin-top:10px' onclick='clearAll()'>🗑 Clear All</button>
-<button style='margin-top:10px' onclick='toggleTheme()'>🌙 Theme</button>
+<div class="main">
+
+<div class="column">
+<div class="column-title">
+AVAILABLE
 </div>
 
-<div class='panel'>
-<div style='font-weight:700;margin-bottom:12px'>Live Stats</div>
-<div id='stats'></div>
+<div id="availableRooms"></div>
 </div>
 
-<div class='panel'>
-<div style='font-weight:700;margin-bottom:12px'>Notifications</div>
-<div id='notifications'></div>
-</div>
-</div>
-
-<div class='main'>
-<div class='topbar'>
-<h1>Dashboard</h1>
+<div class="column">
+<div class="column-title">
+BOOKED
 </div>
 
-<div class='floor-title'>Floor 1</div>
-<div class='room-grid' id='floor1'></div>
-
-<div class='floor-title'>Floor 2</div>
-<div class='room-grid' id='floor2'></div>
+<div id="bookedRooms"></div>
 </div>
 
-<div class='right-panel'>
-<h2>Cleaning Queue</h2>
-<div id='cleaningQueue'></div>
-
-<h2 style='margin-top:28px'>Guest Search</h2>
-<input placeholder='Search username...' id='searchInput' onkeyup='searchGuest()'>
-<div id='searchResults'></div>
-</div>
+<div class="column">
+<div class="column-title">
+IMPORTANT
 </div>
 
-<div class='modal' id='modal'>
-<div class='modal-content' id='modalContent'></div>
+<div id="importantRooms"></div>
+</div>
+
+<div class="sidepanel">
+
+<h2>Controls</h2>
+
+<button onclick="nextDay()">Next Day</button>
+<button onclick="quickCheckin()">Quick Check-In</button>
+<button onclick="clearAll()">Clear All</button>
+
+<h2 style="margin-top:30px">Cleaner Dashboard</h2>
+<div id="cleanerQueue"></div>
+
+<h2 style="margin-top:30px">Notifications</h2>
+<div id="notifications"></div>
+
+<h2 style="margin-top:30px">Guest Search</h2>
+
+<input id="searchInput" placeholder="Search username..." onkeyup="searchGuest()">
+
+<div id="searchResults"></div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="modal" id="modal">
+<div class="modal-content" id="modalContent"></div>
 </div>
 
 <script>
-let dark=true;
+
 let currentDay=parseInt(localStorage.getItem('day'))||1;
+
 let guestHistory=JSON.parse(localStorage.getItem('guestHistory'))||[];
 
 let rooms=JSON.parse(localStorage.getItem('rooms'))||{
-1:{type:'Deluxe',price:100,status:'available'},2:{type:'Deluxe',price:100,status:'available'},3:{type:'Executive',price:200,status:'available'},4:{type:'Deluxe',price:100,status:'available'},5:{type:'Standard',price:50,status:'available'},6:{type:'Standard',price:50,status:'available'},7:{type:'Standard',price:50,status:'available'},8:{type:'Standard',price:50,status:'available'},9:{type:'Executive',price:200,status:'available'},10:{type:'Deluxe',price:100,status:'available'},11:{type:'Deluxe',price:100,status:'available'}
+1:{type:'Deluxe',price:100,status:'available'},
+2:{type:'Deluxe',price:100,status:'available'},
+3:{type:'Executive',price:200,status:'available'},
+4:{type:'Deluxe',price:100,status:'available'},
+5:{type:'Standard',price:50,status:'available'},
+6:{type:'Standard',price:50,status:'available'},
+7:{type:'Standard',price:50,status:'available'},
+8:{type:'Standard',price:50,status:'available'}
 };
 
 function save(){
@@ -113,231 +333,487 @@ localStorage.setItem('day',currentDay);
 localStorage.setItem('guestHistory',JSON.stringify(guestHistory));
 }
 
-function getStatus(r){
-if(r.status==='maintenance') return 'maintenance';
-if(r.status==='available') return 'available';
-if(r.needsCleaning) return 'cleaning';
-if(currentDay===r.checkoutDay) return 'due';
-return 'occupied';
+function getRoomSection(r){
+
+if(r.status==='available'){
+return 'available';
 }
 
-function nextDay(){
-currentDay++;
-for(let i in rooms){
-if(rooms[i].user && currentDay<=rooms[i].checkoutDay){
-rooms[i].needsCleaning=true;
-}
-}
-render();
+if(r.needsCleaning || currentDay>=r.checkoutDay){
+return 'important';
 }
 
-function prevDay(){if(currentDay>1){currentDay--;render();}}
+return 'booked';
+
+}
 
 function render(){
-let f1='',f2='',occupied=0,cleaning=0,outstanding=0,revenue=0,notes='';
+
+let available='';
+let booked='';
+let important='';
+
+let revenue=0;
+let occupied=0;
+let importantCount=0;
+let cleaner='';
+let notes='';
 
 for(let i in rooms){
-let r=rooms[i];
-let status=getStatus(r);
 
-if(status==='occupied') occupied++;
-if(status==='cleaning') cleaning++;
+let r=rooms[i];
+
+let section=getRoomSection(r);
 
 let remaining=((r.total||0)+(r.charges||0))-(r.paid||0);
-outstanding+=remaining>0?remaining:0;
+
 revenue+=(r.paid||0);
 
-if(status==='due') notes+=`<div class='notification'>⚠ Room ${i} checkout due today</div>`;
-if(status==='cleaning') notes+=`<div class='notification'>🧹 Room ${i} needs cleaning</div>`;
-if(currentDay>r.checkoutDay&&r.user) notes+=`<div class='notification'>🚨 Room ${i} overdue checkout</div>`;
-
-let card=`
-<div class='room-card ${status}' onclick='openRoom(${i})'>
-<div class='room-number'>Room ${i}</div>
-<div>${r.type}</div>
-<div class='room-user'>${r.user||'Available'}</div>
-<div class='badge'>${status.toUpperCase()}</div>
-${remaining>0?`<div style='margin-top:10px'>$${remaining} Remaining</div>`:''}
-${r.checkoutDay?`<div style='margin-top:6px;font-size:13px'>Checkout: Day ${r.checkoutDay}</div>`:''}
-</div>`;
-
-if(i<=8)f1+=card;else f2+=card;
+if(section!=='available'){
+occupied++;
 }
 
-document.getElementById('floor1').innerHTML=f1;
-document.getElementById('floor2').innerHTML=f2;
-document.getElementById('day').innerText='Day '+currentDay;
-document.getElementById('stats').innerHTML=`
-<div>Occupied: ${occupied}</div>
-<div style='margin-top:8px'>Cleaning: ${cleaning}</div>
-<div style='margin-top:8px'>Revenue: $${revenue}</div>
-<div style='margin-top:8px'>Outstanding: $${outstanding}</div>`;
+if(section==='important'){
+importantCount++;
+}
 
-document.getElementById('notifications').innerHTML=notes||'<div class="notification">No alerts</div>';
+let statusText='';
 
-let clean='';
-for(let i in rooms){if(getStatus(rooms[i])==='cleaning'){clean+=`<div class='notification'>Room ${i}<button style='margin-top:8px' onclick='markClean(${i})'>Mark Cleaned</button></div>`}}
-document.getElementById('cleaningQueue').innerHTML=clean||'<div class="notification">No rooms pending</div>';
+if(r.needsCleaning){
+statusText='🧹 NEEDS CLEANING';
+}
+else if(currentDay===r.checkoutDay){
+statusText='⚠ CHECKOUT TODAY';
+}
+else if(currentDay>r.checkoutDay){
+statusText='🚨 OVERDUE';
+}
+else{
+statusText='BOOKED';
+}
+
+let card=`
+<div class="room-card ${section}" onclick="openRoom(${i})">
+<div class="room-number">Room ${i}</div>
+<div>${r.type}</div>
+<div class="room-user">${r.user||'Ready to book'}</div>
+<div class="badge">${statusText}</div>
+
+${r.checkoutDay?`
+<div style="margin-top:10px;font-size:13px">
+Checkout: Day ${r.checkoutDay}
+</div>
+`:''}
+
+${remaining>0?`
+<div style="margin-top:8px">
+$${remaining} Remaining
+</div>
+`:''}
+</div>
+`;
+
+if(section==='available'){
+available+=card;
+}
+else if(section==='booked'){
+booked+=card;
+}
+else{
+important+=card;
+}
+
+if(r.needsCleaning){
+cleaner+=`
+<div class="notification">
+🧹 Room ${i}
+<button onclick="markClean(${i})">
+Mark Cleaned
+</button>
+</div>
+`;
+}
+
+if(currentDay===r.checkoutDay){
+notes+=`
+<div class="notification">
+⚠ Room ${i} checkout due today
+</div>
+`;
+}
+
+}
+
+document.getElementById('availableRooms').innerHTML=available;
+document.getElementById('bookedRooms').innerHTML=booked;
+document.getElementById('importantRooms').innerHTML=important;
+
+document.getElementById('dayDisplay').innerText=currentDay;
+document.getElementById('revenueStat').innerText='$'+revenue;
+document.getElementById('occupiedStat').innerText=occupied;
+document.getElementById('importantStat').innerText=importantCount;
+
+document.getElementById('cleanerQueue').innerHTML=
+cleaner||'<div class="notification">No rooms pending</div>';
+
+document.getElementById('notifications').innerHTML=
+notes||'<div class="notification">No alerts</div>';
 
 save();
+
 }
 
 function openRoom(id){
+
 let r=rooms[id];
+
 let total=(r.total||0)+(r.charges||0);
-let paid=r.paid||0;
-let rem=total-paid;
+
+let remaining=total-(r.paid||0);
 
 showModal(`
 <h2>Room ${id}</h2>
-<p style='margin-top:8px'>${r.type}</p>
+
+<p style="margin-top:8px">${r.type}</p>
 <p>${r.user||''}</p>
-<p>Status: ${getStatus(r)}</p>
 
-<div style='margin-top:16px'>
-<button onclick='checkin(${id})'>Check In</button>
-<button style='margin-top:8px' onclick='checkout(${id})'>Check Out</button>
-<button style='margin-top:8px' onclick='addCharge(${id})'>Add Charge</button>
-<button style='margin-top:8px' onclick='paySome(${id})'>Pay Some</button>
-<button style='margin-top:8px' onclick='addGuest(${id})'>Add Guest</button>
-<button style='margin-top:8px' onclick='setMaintenance(${id})'>Maintenance</button>
+<div style="margin-top:20px">
+
+<button onclick="checkin(${id})">
+Check In
+</button>
+
+<button onclick="extendStay(${id})">
+Extend Booking
+</button>
+
+<button onclick="paySome(${id})">
+Pay Some
+</button>
+
+<button onclick="checkout(${id})">
+Check Out
+</button>
+
 </div>
 
-<div style='margin-top:18px'>
+<div style="margin-top:20px">
+
 <p>Total: $${total}</p>
-<p>Paid: $${paid}</p>
-<p>Remaining: $${rem}</p>
+<p>Paid: $${r.paid||0}</p>
+<p>Remaining: $${remaining}</p>
+
 </div>
 
-<button style='margin-top:18px' onclick='closeModal()'>Close</button>
-`)
+<button onclick="closeModal()" style="margin-top:20px">
+Close
+</button>
+`);
+
 }
 
 function checkin(id){
+
 showModal(`
 <h2>Check In</h2>
-<input id='user' placeholder='Username'>
-<input id='nights' type='number' placeholder='Nights'>
-<button style='margin-top:12px' onclick='confirmCheckin(${id})'>Continue</button>`)
+
+<input id="username" placeholder="Username">
+
+<input id="nights" type="number" placeholder="Nights">
+
+<input id="guests" type="number" placeholder="Guests">
+
+<button onclick="confirmCheckin(${id})">
+Continue
+</button>
+`);
+
 }
 
 function confirmCheckin(id){
-let u=document.getElementById('user').value;
+
+let u=document.getElementById('username').value;
+
 let n=parseInt(document.getElementById('nights').value);
-if(!u||!n)return;
-rooms[id]={...rooms[id],user:u,status:'occupied',checkoutDay:currentDay+n,total:rooms[id].price*n,charges:0,paid:0,needsCleaning:false,guests:[],vip:false};
-render();closeModal();
-}
 
-function checkout(id){
-let r=rooms[id];
-let rem=((r.total||0)+(r.charges||0))-(r.paid||0);
-if(rem>0){showModal(`<h2>Outstanding Balance</h2><p>$${rem} remaining</p><button onclick='closeModal()'>Close</button>`);return;}
+let g=parseInt(document.getElementById('guests').value)||1;
 
-guestHistory.push({user:r.user,room:id,total:r.total,day:currentDay,vip:r.vip||false});
-rooms[id]={type:r.type,price:r.price,status:'available'};
-render();closeModal();
-}
+let extraGuests=Math.max(0,g-1);
 
-function addCharge(id){
+let guestFees=extraGuests*10*n;
+
+let total=(rooms[id].price*n)+guestFees;
+
 showModal(`
-<h2>Add Charge</h2>
-<input id='chargeName' placeholder='Charge Name'>
-<input id='chargeAmount' type='number' placeholder='Amount'>
-<button style='margin-top:12px' onclick='confirmCharge(${id})'>Add</button>`)
+<h2>Full Payment Required</h2>
+
+<p>Total: $${total}</p>
+
+<p>Room: $${rooms[id].price*n}</p>
+
+<p>Guest Fees: $${guestFees}</p>
+
+<button onclick="finishCheckin(${id},'${u}',${n},${g},${total})">
+Pay & Check In
+</button>
+`);
+
 }
 
-function confirmCharge(id){
-let amt=parseFloat(document.getElementById('chargeAmount').value)||0;
-rooms[id].charges=(rooms[id].charges||0)+amt;
-render();closeModal();
-}
+function finishCheckin(id,u,n,g,total){
 
-function paySome(id){
-showModal(`
-<h2>Payment</h2>
-<input id='payAmount' type='number' placeholder='Amount'>
-<button style='margin-top:12px' onclick='confirmPayment(${id})'>Pay</button>`)
-}
+rooms[id]={
+...rooms[id],
+user:u,
+checkoutDay:currentDay+n,
+status:'booked',
+needsCleaning:false,
+guests:g,
+total:total,
+paid:total,
+charges:0,
+vip:false
+};
 
-function confirmPayment(id){
-let p=parseFloat(document.getElementById('payAmount').value)||0;
-let rem=((rooms[id].total||0)+(rooms[id].charges||0))-(rooms[id].paid||0);
-if(p>rem)p=rem;
-rooms[id].paid=(rooms[id].paid||0)+p;
-render();closeModal();
-}
+closeModal();
+render();
 
-function addGuest(id){
-showModal(`
-<h2>Add Guest</h2>
-<input id='guestName' placeholder='Guest Username'>
-<button style='margin-top:12px' onclick='confirmGuest(${id})'>Add</button>`)
-}
-
-function confirmGuest(id){
-let g=document.getElementById('guestName').value;
-rooms[id].guests.push(g);
-rooms[id].charges+=10;
-render();closeModal();
 }
 
 function quickCheckin(){
+
 showModal(`
 <h2>Quick Check-In</h2>
-<input id='quickUser' placeholder='Username'>
-<input id='quickGuests' type='number' placeholder='Guests'>
-<input id='quickNights' type='number' placeholder='Nights'>
-<select id='quickType'>
+
+<input id="quickUser" placeholder="Username">
+
+<input id="quickGuests" type="number" placeholder="Guests">
+
+<input id="quickNights" type="number" placeholder="Nights">
+
+<select id="quickType">
 <option>Standard</option>
 <option>Deluxe</option>
 <option>Executive</option>
 </select>
-<button style='margin-top:12px' onclick='doQuickCheckin()'>Assign Room</button>`)
+
+<button onclick="doQuickCheckin()">
+Assign Room
+</button>
+`);
+
 }
 
 function doQuickCheckin(){
+
 let u=document.getElementById('quickUser').value;
+
+let g=parseInt(document.getElementById('quickGuests').value)||1;
+
 let n=parseInt(document.getElementById('quickNights').value);
+
 let t=document.getElementById('quickType').value;
-let g=parseInt(document.getElementById('quickGuests').value)||0;
 
 for(let i in rooms){
-if(rooms[i].type===t&&getStatus(rooms[i])==='available'){
-rooms[i]={...rooms[i],user:u,status:'occupied',checkoutDay:currentDay+n,total:rooms[i].price*n,charges:g*10,paid:0,needsCleaning:false,guests:[],vip:false};
-for(let x=0;x<g;x++) rooms[i].guests.push('guest'+(x+1));
-render();closeModal();
+
+if(rooms[i].type===t && rooms[i].status==='available'){
+
+let extraGuests=Math.max(0,g-1);
+
+let guestFees=extraGuests*10*n;
+
+let total=(rooms[i].price*n)+guestFees;
+
+rooms[i]={
+...rooms[i],
+user:u,
+checkoutDay:currentDay+n,
+status:'booked',
+needsCleaning:false,
+guests:g,
+total:total,
+paid:total,
+charges:0,
+vip:false
+};
+
+closeModal();
+render();
 return;
-}
-}
-showModal(`<h2>No Rooms Available</h2><button onclick='closeModal()'>Close</button>`)
+
 }
 
-function markClean(id){rooms[id].needsCleaning=false;render();}
-function setMaintenance(id){rooms[id].status='maintenance';render();closeModal();}
-
-function searchGuest(){
-let q=document.getElementById('searchInput').value.toLowerCase();
-let out='';
-for(let h of guestHistory){
-if(h.user.toLowerCase().includes(q)){
-out+=`<div class='notification'>${h.user}<br>Room ${h.room}<br>Total $${h.total}${h.vip?'<br>⭐ VIP':''}</div>`
-}
-}
-document.getElementById('searchResults').innerHTML=out||'<div class="notification">No results</div>';
 }
 
-function toggleTheme(){
-if(dark){document.body.style.background='#f3f4f6';document.body.style.color='black';dark=false}
-else{document.body.style.background='#0b1120';document.body.style.color='white';dark=true}
+showModal(`
+<h2>No Rooms Available</h2>
+
+<button onclick="closeModal()">
+Close
+</button>
+`);
+
 }
 
-function clearAll(){if(confirm('Clear all data?')){localStorage.clear();location.reload()}}
+function nextDay(){
 
-function showModal(h){document.getElementById('modal').style.display='flex';document.getElementById('modalContent').innerHTML=h}
-function closeModal(){document.getElementById('modal').style.display='none'}
+currentDay++;
+
+for(let i in rooms){
+
+if(rooms[i].status!=='available'){
+
+rooms[i].needsCleaning=true;
+
+}
+
+}
 
 render();
+
+}
+
+function markClean(id){
+
+rooms[id].needsCleaning=false;
+
+render();
+
+}
+
+function extendStay(id){
+
+showModal(`
+<h2>Extend Stay</h2>
+
+<input id="extraNights" type="number" placeholder="Extra nights">
+
+<button onclick="confirmExtend(${id})">
+Extend
+</button>
+`);
+
+}
+
+function confirmExtend(id){
+
+let extra=parseInt(document.getElementById('extraNights').value);
+
+rooms[id].checkoutDay+=extra;
+
+let extraGuests=Math.max(0,(rooms[id].guests||1)-1);
+
+rooms[id].total+=(rooms[id].price*extra)+(extraGuests*10*extra);
+
+rooms[id].paid=rooms[id].total;
+
+closeModal();
+render();
+
+}
+
+function paySome(id){
+
+showModal(`
+<h2>Add Payment</h2>
+
+<input id="paymentAmount" type="number" placeholder="Amount">
+
+<button onclick="confirmPayment(${id})">
+Pay
+</button>
+`);
+
+}
+
+function confirmPayment(id){
+
+let p=parseFloat(document.getElementById('paymentAmount').value)||0;
+
+rooms[id].paid+=p;
+
+closeModal();
+render();
+
+}
+
+function checkout(id){
+
+guestHistory.push({
+user:rooms[id].user,
+room:id,
+total:rooms[id].total,
+day:currentDay,
+vip:rooms[id].vip
+});
+
+rooms[id]={
+type:rooms[id].type,
+price:rooms[id].price,
+status:'available'
+};
+
+closeModal();
+render();
+
+}
+
+function searchGuest(){
+
+let q=document.getElementById('searchInput').value.toLowerCase();
+
+let out='';
+
+for(let g of guestHistory){
+
+if(g.user.toLowerCase().includes(q)){
+
+out+=`
+<div class="notification">
+${g.vip?'⭐ ':''}${g.user}
+<br>
+Room ${g.room}
+<br>
+Spent $${g.total}
+</div>
+`;
+
+}
+
+}
+
+document.getElementById('searchResults').innerHTML=
+out||'<div class="notification">No results</div>';
+
+}
+
+function clearAll(){
+
+if(confirm('Clear all data?')){
+
+localStorage.clear();
+location.reload();
+
+}
+
+}
+
+function showModal(html){
+
+document.getElementById('modal').style.display='flex';
+document.getElementById('modalContent').innerHTML=html;
+
+}
+
+function closeModal(){
+
+document.getElementById('modal').style.display='none';
+
+}
+
+render();
+
 </script>
+
 </body>
 </html>
